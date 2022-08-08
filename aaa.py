@@ -5,7 +5,7 @@ import pandas as pd
 
 
 
-api_key = "RGAPI-56cbca69-57d4-413b-b37f-a393980b0afe"
+api_key = "RGAPI-0cb315b9-0b8b-44b7-96e5-8687e479ff36"
 temp_puuid = "6GmLC8TVIQy5iXPOndeFSCQc-9tGH7LFGoN_Ryk9IOoWIuHmFE0W52V7CNNKLrpbIIt4yYdvIC7kBA"
 grandmaster = 'https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=' + api_key
 r = requests.get(grandmaster)#챌 데이터 호출
