@@ -5,7 +5,7 @@ import pandas as pd
 
 
 
-api_key = "RGAPI-0cb315b9-0b8b-44b7-96e5-8687e479ff36"
+api_key = "RGAPI-d0186bd9-0bd0-42d2-ad96-e8506d357a60"
 temp_puuid = "6GmLC8TVIQy5iXPOndeFSCQc-9tGH7LFGoN_Ryk9IOoWIuHmFE0W52V7CNNKLrpbIIt4yYdvIC7kBA"
 grandmaster = 'https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=' + api_key
 r = requests.get(grandmaster)#챌 데이터 호출
@@ -61,9 +61,11 @@ match_info_df.to_csv('매치리스트.csv',index=False,encoding = 'cp949')#저�
 #------------------------2번---------------------------------------------------
 
 match_fin = pd.DataFrame()
+data_fin = pd.DataFrame()
+tempa = pd.DataFrame()
 for i in range(len(match_info_df)):    
     time.sleep(1)
-    api_url='https://asia.api.riotgames.com/lol/match/v5/matches/' + str(match_info_df.iloc[i,0]) + '?api_key=' + api_key
+    api_url='https://asia.api.riotgames.com/lol/match/v5/matches/' + str(match_info_df.iloc[i,1]) + '?api_key=' + api_key
     r = requests.get(api_url)
 
     if r.status_code == 200: # response가 정상이면 바로 맨 밑으로 이동하여 정상적으로 코드 실행
@@ -112,11 +114,26 @@ for i in range(len(match_info_df)):
     else:
         print('오류 발생! 오류코드:',r.status_code)
     # 위의 예외처리 코드를 거쳐서 내려왔을 때 해당 코드가 실행될 수 있도록 작성
-    temp = r.json()
-    mat = pd.DataFrame(list(temp['info'].values()), index=list(temp['info'].keys())).T
-    match_fin = pd.concat([match_fin,mat])
-    print('2번 작업',i+1,'/',len(match_info_df))
 
+    
+    temp = r.json()
+    #mat = pd.DataFrame(list(temp['info'].values()), index=list(temp['info'].keys())).T
+    mat = pd.DataFrame(temp)
+    dur = ('gameDuration',mat['info']['gameDuration'])
+    dura= pd.DataFrame(list(dur))
+    aaa = pd.DataFrame(mat['info']['teams'])
+    match_fin = pd.concat([match_fin,aaa])
+    print('2번 작업',i+1,'/',len(match_info_df))
+    #챔피언아이디를 제외하고 딕셔너리를 뽑는다
+    
+        
+   
+
+    #컬럼으로 풀어준 team1과 team2와 duration의 데이터를 합쳐준다.
+    data_team = pd.concat([team1_df,team2_df,dura],axis=1)
+    data_fin = pd.concat([data_fin,data_team])
+    
+'''
     
     #챔피언아이디를 제외하고 딕셔너리를 뽑는다
     a_ls = list(temp['info']['participants'])
@@ -136,11 +153,11 @@ for i in range(len(match_info_df)):
     #컬럼으로 풀어준 team1과 team2와 duration의 데이터를 합쳐준다.
     data_team = pd.concat([team1_df,team2_df],axis=1)
     
-
+'''
 match_fin.to_csv('매치데이터.csv',index=False,encoding = 'cp949')#저장
-data_team.to_csv('매치데이터2.csv',index=False,encoding = 'cp949')#중간저장
+data_fin.to_csv('매치데이터2.csv',index=False,encoding = 'cp949')#중간저장
 # --------------3번-------------------------------------------
-
+'''
 
 match_fin2 = pd.DataFrame()
 for i in range(len(match_info_df)):    
@@ -202,3 +219,4 @@ for i in range(len(match_info_df)):
 
 match_fin2.to_csv('매치탐라데이터.csv',index=False,encoding = 'cp949')#저장
 
+'''
