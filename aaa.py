@@ -5,7 +5,7 @@ import pandas as pd
 
 
 
-api_key = "RGAPI-d0186bd9-0bd0-42d2-ad96-e8506d357a60"
+api_key = "RGAPI-27112419-0e70-4557-be7f-4522708f8e1d"
 temp_puuid = "6GmLC8TVIQy5iXPOndeFSCQc-9tGH7LFGoN_Ryk9IOoWIuHmFE0W52V7CNNKLrpbIIt4yYdvIC7kBA"
 grandmaster = 'https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=' + api_key
 r = requests.get(grandmaster)#챌 데이터 호출
@@ -17,7 +17,7 @@ league_df = league_df.drop(['index', 'queue', 'name', 'leagueId', 'entries', 'ra
 league_df['puuid'] = ""
 league_df.info()
 league_df.to_csv('챌린데이터.csv',index=False,encoding = 'cp949')#중간저장
-for i in range(2):
+for i in range(len(league_df)):
     try:
         
         time.sleep(1)
@@ -41,7 +41,7 @@ match_info_df = pd.DataFrame()
 match_info_df.insert(0,'matchId',"")
 start = str('0')
 count = str('20')
-for i in range(2):
+for i in range(len(league_df)):
     try:
         time.sleep(2)
         match0 = 'https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/' + league_df.iloc[i,-1]  +'/ids?start=' + start + '&count=' + count + '&api_key=' + api_key
@@ -113,25 +113,36 @@ for i in range(len(match_info_df)):
         break
     else:
         print('오류 발생! 오류코드:',r.status_code)
-    # 위의 예외처리 코드를 거쳐서 내려왔을 때 해당 코드가 실행될 수 있도록 작성
-
-    
-    temp = r.json()
-    #mat = pd.DataFrame(list(temp['info'].values()), index=list(temp['info'].keys())).T
-    mat = pd.DataFrame(temp)
-    dur = ('gameDuration',mat['info']['gameDuration'])
-    dura= pd.DataFrame(list(dur))
-    aaa = pd.DataFrame(mat['info']['teams'])
-    match_fin = pd.concat([match_fin,aaa])
-    print('2번 작업',i+1,'/',len(match_info_df))
-    #챔피언아이디를 제외하고 딕셔너리를 뽑는다
-    
         
-   
+    # 위의 예외처리 코드를 거쳐서 내려왔을 때 해당 코드가 실행될 수 있도록 작성
+    try:
+        
+        temp = r.json()
+        #mat = pd.DataFrame(list(temp['info'].values()), index=list(temp['info'].keys())).T
+        mat = pd.DataFrame(temp)
+        dur = pd.DataFrame(pd.Series({"GameDuration":mat['info']['gameDuration']})).T
+        
+        
+        qqq1 = pd.DataFrame(mat['info']['teams'])
+        qqq2 = pd.DataFrame(mat['info']['teams'])
+        qqq1 = qqq1.drop([1],axis = 0)
+        qqq2 = qqq2.drop([0],axis = 0)
+        qqq2 = qqq2.reset_index()
+        www1 = pd.DataFrame(pd.Series({"BaronFirstKill":qqq1['objectives'].iloc[0]['baron']['first'], "BaronKills":qqq1['objectives'].iloc[0]['baron']['kills'],"ChampionFirstKill":qqq1['objectives'].iloc[0]['champion']['first'],"ChampionKills":qqq1['objectives'].iloc[0]['champion']['kills'],"DragonFirstKill":qqq1['objectives'].iloc[0]['dragon']['first'],"DragonKills":qqq1['objectives'].iloc[0]['dragon']['kills'],"InhibitorFirstKill":qqq1['objectives'].iloc[0]['inhibitor']['first'],"InhibitorKills":qqq1['objectives'].iloc[0]['inhibitor']['kills'],"RiftHeraldFirstKill":qqq1['objectives'].iloc[0]['riftHerald']['first'],"RiftHeraldKills":qqq1['objectives'].iloc[0]['riftHerald']['kills'],"TowerFirstKill":qqq1['objectives'].iloc[0]['tower']['first'],"TowerKills":qqq1['objectives'].iloc[0]['tower']['kills']})).T
+        www2 = pd.DataFrame(pd.Series({"BaronFirstKill":qqq2['objectives'].iloc[0]['baron']['first'], "BaronKills":qqq2['objectives'].iloc[0]['baron']['kills'],"ChampionFirstKill":qqq2['objectives'].iloc[0]['champion']['first'],"ChampionKills":qqq2['objectives'].iloc[0]['champion']['kills'],"DragonFirstKill":qqq2['objectives'].iloc[0]['dragon']['first'],"DragonKills":qqq2['objectives'].iloc[0]['dragon']['kills'],"InhibitorFirstKill":qqq2['objectives'].iloc[0]['inhibitor']['first'],"InhibitorKills":qqq2['objectives'].iloc[0]['inhibitor']['kills'],"RiftHeraldFirstKill":qqq2['objectives'].iloc[0]['riftHerald']['first'],"RiftHeraldKills":qqq2['objectives'].iloc[0]['riftHerald']['kills'],"TowerFirstKill":qqq2['objectives'].iloc[0]['tower']['first'],"TowerKills":qqq2['objectives'].iloc[0]['tower']['kills']})).T
 
-    #컬럼으로 풀어준 team1과 team2와 duration의 데이터를 합쳐준다.
-    data_team = pd.concat([team1_df,team2_df,dura],axis=1)
-    data_fin = pd.concat([data_fin,data_team])
+        qqq1 = qqq1.drop(['bans','objectives'],axis = 1)
+        qqq2 = qqq2.drop(['bans','objectives','index'],axis = 1)
+        qqq1 = pd.concat([qqq1,www1], axis = 1)
+        qqq2 = pd.concat([qqq2,www2], axis = 1)
+
+        qqq1 = pd.concat([qqq1,qqq2,dur],axis = 1)
+        match_fin = pd.concat([match_fin,qqq1])
+        print('2번 작업',i+1,'/',len(match_info_df))
+        #챔피언아이디를 제외하고 딕셔너리를 뽑는다
+    except:
+        print("error!", i+1)
+        
     
 '''
     
