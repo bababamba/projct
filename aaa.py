@@ -5,7 +5,7 @@ import pandas as pd
 
 
 
-api_key = "RGAPI-27112419-0e70-4557-be7f-4522708f8e1d"
+api_key = "RGAPI-6958d25b-b16d-4fce-b119-527ad862c228"
 temp_puuid = "6GmLC8TVIQy5iXPOndeFSCQc-9tGH7LFGoN_Ryk9IOoWIuHmFE0W52V7CNNKLrpbIIt4yYdvIC7kBA"
 grandmaster = 'https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=' + api_key
 r = requests.get(grandmaster)#챌 데이터 호출
@@ -121,6 +121,50 @@ for i in range(len(match_info_df)):
         #mat = pd.DataFrame(list(temp['info'].values()), index=list(temp['info'].keys())).T
         mat = pd.DataFrame(temp)
         dur = pd.DataFrame(pd.Series({"GameDuration":mat['info']['gameDuration']})).T
+        time60 = mat['info']['gameDuration']
+        time60 = round(time60/60)
+        kills1 = mat['info']['teams'][0]['objectives']['champion']['kills']
+        kills2 = mat['info']['teams'][1]['objectives']['champion']['kills']
+        for j in range(0,5) :
+           
+            qq1 = pd.DataFrame(mat['info']['participants'][j])
+            qq2 = pd.DataFrame(mat['info']['participants'][j+5])
+            
+            if j==0:
+                a1 = qq1['totalDamageDealtToChampions'].iloc[0] +qq1['totalDamageTaken'].iloc[0]
+                a1 = round(a1/time60)
+                a2 = qq2['totalDamageDealtToChampions'].iloc[0] +qq2['totalDamageTaken'].iloc[0]
+                a2 = round(a2/time60)
+                data1 =pd.DataFrame(pd.Series({"T1TOP":a1})).T
+                data2 =pd.DataFrame(pd.Series({"T2TOP":a2})).T
+            elif j==1:
+                a1 = qq1['kills'].iloc[0] + qq1['assists'].iloc[0]
+                a1 = a1/kills1
+                a2 = qq2['kills'].iloc[0] + qq2['assists'].iloc[0]
+                a2 = a2/kills2
+                temp1 =pd.DataFrame(pd.Series({"T1JUN":round(a1*100)})).T
+                temp2 =pd.DataFrame(pd.Series({"T2JUN":round(a2*100)})).T
+                data1 = pd.concat([data1,temp1], axis = 1)
+                data2 = pd.concat([data2,temp2], axis = 1)
+            elif j==2:
+                a1 = round(qq1['totalDamageDealtToChampions'].iloc[0]/time60)
+                a2 = round(qq2['totalDamageDealtToChampions'].iloc[0]/time60)
+                temp1 =pd.DataFrame(pd.Series({"T1MID":a1})).T
+                temp2 =pd.DataFrame(pd.Series({"T2MID":a2})).T
+                data1 = pd.concat([data1,temp1], axis = 1)
+                data2 = pd.concat([data2,temp2], axis = 1)
+            elif j==3:
+                a1 = round(qq1['totalDamageDealtToChampions'].iloc[0]/time60)
+                a2 = round(qq2['totalDamageDealtToChampions'].iloc[0]/time60)
+                temp1 =pd.DataFrame(pd.Series({"T1ADC":a1})).T
+                temp2 =pd.DataFrame(pd.Series({"T2ADC":a2})).T
+                data1 = pd.concat([data1,temp1], axis = 1)
+                data2 = pd.concat([data2,temp2], axis = 1)
+            elif j==4:
+                temp1 =pd.DataFrame(pd.Series({"T1SPT":qq1['assists'].iloc[0]})).T
+                temp2 =pd.DataFrame(pd.Series({"T2SPT":qq2['assists'].iloc[0]})).T
+                data1 = pd.concat([data1,temp1], axis = 1)
+                data2 = pd.concat([data2,temp2], axis = 1)
         
         
         qqq1 = pd.DataFrame(mat['info']['teams'])
@@ -128,15 +172,15 @@ for i in range(len(match_info_df)):
         qqq1 = qqq1.drop([1],axis = 0)
         qqq2 = qqq2.drop([0],axis = 0)
         qqq2 = qqq2.reset_index()
-        www1 = pd.DataFrame(pd.Series({"BaronFirstKill":qqq1['objectives'].iloc[0]['baron']['first'], "BaronKills":qqq1['objectives'].iloc[0]['baron']['kills'],"ChampionFirstKill":qqq1['objectives'].iloc[0]['champion']['first'],"ChampionKills":qqq1['objectives'].iloc[0]['champion']['kills'],"DragonFirstKill":qqq1['objectives'].iloc[0]['dragon']['first'],"DragonKills":qqq1['objectives'].iloc[0]['dragon']['kills'],"InhibitorFirstKill":qqq1['objectives'].iloc[0]['inhibitor']['first'],"InhibitorKills":qqq1['objectives'].iloc[0]['inhibitor']['kills'],"RiftHeraldFirstKill":qqq1['objectives'].iloc[0]['riftHerald']['first'],"RiftHeraldKills":qqq1['objectives'].iloc[0]['riftHerald']['kills'],"TowerFirstKill":qqq1['objectives'].iloc[0]['tower']['first'],"TowerKills":qqq1['objectives'].iloc[0]['tower']['kills']})).T
-        www2 = pd.DataFrame(pd.Series({"BaronFirstKill":qqq2['objectives'].iloc[0]['baron']['first'], "BaronKills":qqq2['objectives'].iloc[0]['baron']['kills'],"ChampionFirstKill":qqq2['objectives'].iloc[0]['champion']['first'],"ChampionKills":qqq2['objectives'].iloc[0]['champion']['kills'],"DragonFirstKill":qqq2['objectives'].iloc[0]['dragon']['first'],"DragonKills":qqq2['objectives'].iloc[0]['dragon']['kills'],"InhibitorFirstKill":qqq2['objectives'].iloc[0]['inhibitor']['first'],"InhibitorKills":qqq2['objectives'].iloc[0]['inhibitor']['kills'],"RiftHeraldFirstKill":qqq2['objectives'].iloc[0]['riftHerald']['first'],"RiftHeraldKills":qqq2['objectives'].iloc[0]['riftHerald']['kills'],"TowerFirstKill":qqq2['objectives'].iloc[0]['tower']['first'],"TowerKills":qqq2['objectives'].iloc[0]['tower']['kills']})).T
+        www1 = pd.DataFrame(pd.Series({"T1BaronFirstKill":qqq1['objectives'].iloc[0]['baron']['first'], "T1BaronKills":qqq1['objectives'].iloc[0]['baron']['kills'],"T1ChampionFirstKill":qqq1['objectives'].iloc[0]['champion']['first'],"T1ChampionKills":qqq1['objectives'].iloc[0]['champion']['kills'],"T1DragonFirstKill":qqq1['objectives'].iloc[0]['dragon']['first'],"T1DragonKills":qqq1['objectives'].iloc[0]['dragon']['kills'],"T1InhibitorFirstKill":qqq1['objectives'].iloc[0]['inhibitor']['first'],"T1InhibitorKills":qqq1['objectives'].iloc[0]['inhibitor']['kills'],"T1RiftHeraldFirstKill":qqq1['objectives'].iloc[0]['riftHerald']['first'],"T1RiftHeraldKills":qqq1['objectives'].iloc[0]['riftHerald']['kills'],"T1TowerFirstKill":qqq1['objectives'].iloc[0]['tower']['first'],"T1TowerKills":qqq1['objectives'].iloc[0]['tower']['kills']})).T
+        www2 = pd.DataFrame(pd.Series({"T2BaronFirstKill":qqq2['objectives'].iloc[0]['baron']['first'], "T2BaronKills":qqq2['objectives'].iloc[0]['baron']['kills'],"T2ChampionFirstKill":qqq2['objectives'].iloc[0]['champion']['first'],"T2ChampionKills":qqq2['objectives'].iloc[0]['champion']['kills'],"T2DragonFirstKill":qqq2['objectives'].iloc[0]['dragon']['first'],"T2DragonKills":qqq2['objectives'].iloc[0]['dragon']['kills'],"T2InhibitorFirstKill":qqq2['objectives'].iloc[0]['inhibitor']['first'],"T2InhibitorKills":qqq2['objectives'].iloc[0]['inhibitor']['kills'],"T2RiftHeraldFirstKill":qqq2['objectives'].iloc[0]['riftHerald']['first'],"T2RiftHeraldKills":qqq2['objectives'].iloc[0]['riftHerald']['kills'],"T2TowerFirstKill":qqq2['objectives'].iloc[0]['tower']['first'],"T2TowerKills":qqq2['objectives'].iloc[0]['tower']['kills']})).T
 
         qqq1 = qqq1.drop(['bans','objectives'],axis = 1)
         qqq2 = qqq2.drop(['bans','objectives','index'],axis = 1)
         qqq1 = pd.concat([qqq1,www1], axis = 1)
         qqq2 = pd.concat([qqq2,www2], axis = 1)
 
-        qqq1 = pd.concat([qqq1,qqq2,dur],axis = 1)
+        qqq1 = pd.concat([qqq1,data1,qqq2,data2,dur],axis = 1)
         match_fin = pd.concat([match_fin,qqq1])
         print('2번 작업',i+1,'/',len(match_info_df))
         #챔피언아이디를 제외하고 딕셔너리를 뽑는다
