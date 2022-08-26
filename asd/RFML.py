@@ -3,54 +3,93 @@ import json
 import time
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import LabelEncoder
+import warnings
+
+data = pd.read_csv('매치데이터.csv')
+
+data = data.dropna(axis=0)
+
+print(data.shape[1])
+for i in range(0,data.shape[1]):
+    if i == 1 or i == 2 or i == 4 or i == 6 or i == 8 or i == 10 or i == 12 or i == 20 or i == 22 or i == 24 or i == 26 or i == 28 or i == 30:
+        le = LabelEncoder()
+        y = list(data.iloc[:,i])
+
+        le.fit(y)
+        y2 = le.transform(y)
+
+        data.iloc[:,i] = y2
+data2 = data[list(data.columns)[2:]]
+data2.to_csv('temp3.csv',index=False,encoding = 'cp949')
+data2 = data2.drop(['teamId.1','GameDuration','T2TowerKills', 'T1TowerKills','T1ChampionKills','T2ChampionKills','T2InhibitorKills','T2InhibitorFirstKill','T1InhibitorKills','T1InhibitorFirstKill'],axis =1)
+from sklearn.model_selection import train_test_split
+
+X_train, X_test, y_train, y_test = train_test_split(data2, np.array(data['win'].tolist()), test_size=0.25, stratify=np.array(data['win'].tolist()), random_state=123456)
 
 
-api_key = "RGAPI-f31dcbe0-1111-4df9-b4d3-3c03cb30acda"
-temp_puuid = "6GmLC8TVIQy5iXPOndeFSCQc-9tGH7LFGoN_Ryk9IOoWIuHmFE0W52V7CNNKLrpbIIt4yYdvIC7kBA"
+from sklearn.ensemble import RandomForestClassifier
 
-  
+rf = RandomForestClassifier(n_estimators=100, oob_score=True, random_state=12345)
+rf.fit(X_train, y_train)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+importances = rf.feature_importances_
+std = np.std([tree.feature_importances_ for tree in rf.estimators_], axis = 0)
+indices = np.argsort(importances)[::-1]
 
 
 
 
+from sklearn.metrics import accuracy_score
 
+predicted = rf.predict(X_test)
+accuracy = accuracy_score(y_test, predicted)
 
+#oob_score = out of bag score로써 예측이 얼마나 정확한가에 대한 추정치입니다.
+print(f'Out-of-bag score estimate: {rf.oob_score_:.3}')
+print(f'Mean accuracy score: {accuracy:.3}')
+print("feature ranking = ")
 
+for f in range(X_train.shape[1]):
+    print("{}. feature {} ({:.3f})".format(f +1, X_train.columns[indices][f], importances[indices[f]]))
+
+    
+plt.figure()
+plt.title("Feature importances")
+plt.bar(range(X_train.shape[1]),importances[indices],color ='r',yerr=std[indices],align="center")
+plt.xticks(range(X_train.shape[1]), X_train.columns[indices], rotation=45)
+plt.xlim([-1,X_train.shape[1]])
+plt.show()
 
 
 '''
-match = 'https://asia.api.riotgames.com/lol/match/v5/matches/KR_6092506289/?api_key=' + api_key
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+api_key = "RGAPI-6958d25b-b16d-4fce-b119-527ad862c228"
+temp_puuid = "6GmLC8TVIQy5iXPOndeFSCQc-9tGH7LFGoN_Ryk9IOoWIuHmFE0W52V7CNNKLrpbIIt4yYdvIC7kBA"
+match = 'https://asia.api.riotgames.com/lol/match/v5/matches/KR_6016635184/?api_key=' + api_key
 r = requests.get(match)#매치데이터 호출
 league_df = pd.DataFrame(r.json())
 data1 = pd.DataFrame()
@@ -114,6 +153,7 @@ print(data1)
 
 
 #qqq.to_csv('temp3.csv',index=False,encoding = 'cp949')
+
 
 
 

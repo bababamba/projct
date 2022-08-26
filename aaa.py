@@ -5,8 +5,9 @@ import pandas as pd
 
 
 
-api_key = "RGAPI-6958d25b-b16d-4fce-b119-527ad862c228"
+api_key = "RGAPI-f31dcbe0-1111-4df9-b4d3-3c03cb30acda"
 temp_puuid = "6GmLC8TVIQy5iXPOndeFSCQc-9tGH7LFGoN_Ryk9IOoWIuHmFE0W52V7CNNKLrpbIIt4yYdvIC7kBA"
+'''
 grandmaster = 'https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=' + api_key
 r = requests.get(grandmaster)#챌 데이터 호출
 league_df = pd.DataFrame(r.json())
@@ -57,15 +58,65 @@ for i in range(len(league_df)):
     
     except:
         print(i+1)
-match_info_df.to_csv('매치리스트.csv',index=False,encoding = 'cp949')#저장      
+match_info_df.to_csv('매치리스트.csv',index=False,encoding = 'cp949')#저장
+'''
 #------------------------2번---------------------------------------------------
+bronze = 'https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/BRONZE/II?page=1&api_key=' + api_key
+r = requests.get(bronze)#챌 데이터 호출
+print(r)
+league_df = pd.DataFrame(r.json())
+league_df.reset_index(inplace=True)#수집한 챌 index정리
+league_df = league_df.drop(['index', 'queueType', 'summonerId', 'leaguePoints','veteran','freshBlood','hotStreak', 'inactive', 'rank'], axis=1)
+league_df['puuid'] = ""
+league_df.info()
+league_df.to_csv('브론데이터.csv',index=False,encoding = 'cp949')#중간저장
+for i in range(len(league_df)):
+    try:
+        
+        time.sleep(1)
+        sohwan = 'https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + league_df['summonerName'].iloc[i] + '?api_key=' + api_key 
+        r = requests.get(sohwan)
+        while r.status_code == 429:
+            print("라이엇때문이야!")
+            time.sleep(5)
+            sohwan = 'https://kr.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + league_df['summonerName'].iloc[i] + '?api_key=' + api_key 
+            r = requests.get(sohwan)
+            
+        puuid = r.json()['puuid']
+        league_df.iloc[i, -1] = puuid
+        print("1 - 1번 작업", i+1, "/", len(league_df))
+    
+    except:
+        pass
+league_df.to_csv('브론즈데이터.csv',index=False,encoding = 'cp949')#저장
 
+match_info_df = pd.DataFrame()
+match_info_df.insert(0,'matchId',"")
+start = str('0')
+count = str('20')
+for i in range(len(league_df)):
+    try:
+        time.sleep(2)
+        match0 = 'https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/' + league_df.iloc[i,-1]  +'/ids?start=' + start + '&count=' + count + '&api_key=' + api_key
+        r = requests.get(match0)
+        
+        while r.status_code == 429:
+            print("라이엇때문이야!")
+            time.sleep(5)
+            match0 = 'https://asia.api.riotgames.com/lol/match/v5/matches/by-puuid/' + league_df.iloc[i,-1]  +'/ids?start=' + start + '&count=' + count +'&api_key=' + api_key
+        r = requests.get(match0)
+        match_info_df = pd.concat([match_info_df, pd.DataFrame(r.json())])
+        print("1 - 2번 작업", i+1, "/", len(league_df))
+    
+    except:
+        print(i+1)
+match_info_df.to_csv('매치리스트.csv',index=False,encoding = 'cp949')#저장
 match_fin = pd.DataFrame()
 data_fin = pd.DataFrame()
 tempa = pd.DataFrame()
 for i in range(len(match_info_df)):    
     time.sleep(1)
-    api_url='https://asia.api.riotgames.com/lol/match/v5/matches/' + str(match_info_df.iloc[i,1]) + '?api_key=' + api_key
+    api_url='https://asia.api.riotgames.com/lol/match/v5/matches/' + str(match_info_df.iloc[i,0]) + '?api_key=' + api_key
     r = requests.get(api_url)
 
     if r.status_code == 200: # response가 정상이면 바로 맨 밑으로 이동하여 정상적으로 코드 실행
