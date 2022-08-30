@@ -3,11 +3,11 @@ import json
 import time
 import pandas as pd
 
+testtest = 1
 
-
-api_key = "RGAPI-f31dcbe0-1111-4df9-b4d3-3c03cb30acda"
+api_key = "RGAPI-2aca8583-eec1-420d-937c-818fd5b2e357"
 temp_puuid = "6GmLC8TVIQy5iXPOndeFSCQc-9tGH7LFGoN_Ryk9IOoWIuHmFE0W52V7CNNKLrpbIIt4yYdvIC7kBA"
-'''
+
 grandmaster = 'https://kr.api.riotgames.com/lol/league/v4/challengerleagues/by-queue/RANKED_SOLO_5x5?api_key=' + api_key
 r = requests.get(grandmaster)#챌 데이터 호출
 league_df = pd.DataFrame(r.json())
@@ -36,7 +36,7 @@ for i in range(len(league_df)):
     
     except:
         pass
-league_df.to_csv('챌린데이터.csv',index=False,encoding = 'cp949')#저장
+league_df.to_csv('브론즈데이터.csv',index=False,encoding = 'cp949')#저장
 
 match_info_df = pd.DataFrame()
 match_info_df.insert(0,'matchId',"")
@@ -61,7 +61,7 @@ for i in range(len(league_df)):
 match_info_df.to_csv('매치리스트.csv',index=False,encoding = 'cp949')#저장
 '''
 #------------------------2번---------------------------------------------------
-bronze = 'https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/BRONZE/II?page=1&api_key=' + api_key
+bronze = 'https://kr.api.riotgames.com/lol/league/v4/entries/RANKED_SOLO_5x5/BRONZE/II?page=2&api_key=' + api_key
 r = requests.get(bronze)#챌 데이터 호출
 print(r)
 league_df = pd.DataFrame(r.json())
@@ -111,12 +111,18 @@ for i in range(len(league_df)):
     except:
         print(i+1)
 match_info_df.to_csv('매치리스트.csv',index=False,encoding = 'cp949')#저장
+'''
 match_fin = pd.DataFrame()
 data_fin = pd.DataFrame()
 tempa = pd.DataFrame()
+data1 = pd.DataFrame()
+data2 = pd.DataFrame()
+data3 = pd.DataFrame()
+data4 = pd.DataFrame()
+data5 = pd.DataFrame()
 for i in range(len(match_info_df)):    
     time.sleep(1)
-    api_url='https://asia.api.riotgames.com/lol/match/v5/matches/' + str(match_info_df.iloc[i,0]) + '?api_key=' + api_key
+    api_url='https://asia.api.riotgames.com/lol/match/v5/matches/' + str(match_info_df.iloc[i,1]) + '?api_key=' + api_key
     r = requests.get(api_url)
 
     if r.status_code == 200: # response가 정상이면 바로 맨 밑으로 이동하여 정상적으로 코드 실행
@@ -171,7 +177,10 @@ for i in range(len(match_info_df)):
         temp = r.json()
         #mat = pd.DataFrame(list(temp['info'].values()), index=list(temp['info'].keys())).T
         mat = pd.DataFrame(temp)
+
         dur = pd.DataFrame(pd.Series({"GameDuration":mat['info']['gameDuration']})).T
+
+        '''
         time60 = mat['info']['gameDuration']
         time60 = round(time60/60)
         kills1 = mat['info']['teams'][0]['objectives']['champion']['kills']
@@ -233,6 +242,38 @@ for i in range(len(match_info_df)):
 
         qqq1 = pd.concat([qqq1,data1,qqq2,data2,dur],axis = 1)
         match_fin = pd.concat([match_fin,qqq1])
+        '''
+        for j in range(0,5) :
+            qq1 = pd.DataFrame(mat['info']['participants'][j])
+            qq2 = pd.DataFrame(mat['info']['participants'][j+5])
+            
+            if j==0:
+                temp1 =pd.DataFrame(pd.Series({"tT1Win":qq1['win'].iloc[0],"T1DealtDamage":qq1['totalDamageDealtToChampions'].iloc[0],"T1TakenDamage":qq1['totalDamageTaken'].iloc[0],"T1VisionScore":qq1['visionScore'].iloc[0],"T1champLevel":qq1['champLevel'].iloc[0],"T1goldEarned":qq1['goldEarned'].iloc[0],"T1totalMinionsKilled":qq1['totalMinionsKilled'].iloc[0]})).T
+                temp2 =pd.DataFrame(pd.Series({"tT2Win":qq2['win'].iloc[0],"T2DealtDamage":qq2['totalDamageDealtToChampions'].iloc[0],"T2TakenDamage":qq2['totalDamageTaken'].iloc[0],"T2VisionScore":qq2['visionScore'].iloc[0],"T2champLevel":qq2['champLevel'].iloc[0],"T2goldEarned":qq2['goldEarned'].iloc[0],"T2totalMinionsKilled":qq2['totalMinionsKilled'].iloc[0]})).T
+                temp1 = pd.concat([temp1,temp2], axis=1)
+                data1 = pd.concat([data1,temp1], axis=0)
+            elif j==1:
+                temp1 =pd.DataFrame(pd.Series({"jT1Win":qq1['win'].iloc[0],"T1DealtDamage":qq1['totalDamageDealtToChampions'].iloc[0],"T1TakenDamage":qq1['totalDamageTaken'].iloc[0],"T1VisionScore":qq1['visionScore'].iloc[0],"T1champLevel":qq1['champLevel'].iloc[0],"T1goldEarned":qq1['goldEarned'].iloc[0],"T1totalMinionsKilled":qq1['totalMinionsKilled'].iloc[0]})).T
+                temp2 =pd.DataFrame(pd.Series({"jT2Win":qq2['win'].iloc[0],"T2DealtDamage":qq2['totalDamageDealtToChampions'].iloc[0],"T2TakenDamage":qq2['totalDamageTaken'].iloc[0],"T2VisionScore":qq2['visionScore'].iloc[0],"T2champLevel":qq2['champLevel'].iloc[0],"T2goldEarned":qq2['goldEarned'].iloc[0],"T2totalMinionsKilled":qq2['totalMinionsKilled'].iloc[0]})).T
+                temp1 = pd.concat([temp1,temp2], axis=1)
+                data2 = pd.concat([data2,temp1], axis=0)
+            elif j==2:
+                temp1 =pd.DataFrame(pd.Series({"mT1Win":qq1['win'].iloc[0],"T1DealtDamage":qq1['totalDamageDealtToChampions'].iloc[0],"T1TakenDamage":qq1['totalDamageTaken'].iloc[0],"T1VisionScore":qq1['visionScore'].iloc[0],"T1champLevel":qq1['champLevel'].iloc[0],"T1goldEarned":qq1['goldEarned'].iloc[0],"T1totalMinionsKilled":qq1['totalMinionsKilled'].iloc[0]})).T
+                temp2 =pd.DataFrame(pd.Series({"mT2Win":qq2['win'].iloc[0],"T2DealtDamage":qq2['totalDamageDealtToChampions'].iloc[0],"T2TakenDamage":qq2['totalDamageTaken'].iloc[0],"T2VisionScore":qq2['visionScore'].iloc[0],"T2champLevel":qq2['champLevel'].iloc[0],"T2goldEarned":qq2['goldEarned'].iloc[0],"T2totalMinionsKilled":qq2['totalMinionsKilled'].iloc[0]})).T
+                temp1 = pd.concat([temp1,temp2], axis=1)
+                data3 = pd.concat([data3,temp1], axis=0)
+            elif j==3:
+                temp1 =pd.DataFrame(pd.Series({"aT1Win":qq1['win'].iloc[0],"T1DealtDamage":qq1['totalDamageDealtToChampions'].iloc[0],"T1TakenDamage":qq1['totalDamageTaken'].iloc[0],"T1VisionScore":qq1['visionScore'].iloc[0],"T1champLevel":qq1['champLevel'].iloc[0],"T1goldEarned":qq1['goldEarned'].iloc[0],"T1totalMinionsKilled":qq1['totalMinionsKilled'].iloc[0]})).T
+                temp2 =pd.DataFrame(pd.Series({"aT2Win":qq2['win'].iloc[0],"T2DealtDamage":qq2['totalDamageDealtToChampions'].iloc[0],"T2TakenDamage":qq2['totalDamageTaken'].iloc[0],"T2VisionScore":qq2['visionScore'].iloc[0],"T2champLevel":qq2['champLevel'].iloc[0],"T2goldEarned":qq2['goldEarned'].iloc[0],"T2totalMinionsKilled":qq2['totalMinionsKilled'].iloc[0]})).T
+                temp1 = pd.concat([temp1,temp2], axis=1)
+                data4 = pd.concat([data4,temp1], axis=0)
+            elif j==4:
+                temp1 =pd.DataFrame(pd.Series({"sT1Win":qq1['win'].iloc[0],"T1DealtDamage":qq1['totalDamageDealtToChampions'].iloc[0],"T1TakenDamage":qq1['totalDamageTaken'].iloc[0],"T1VisionScore":qq1['visionScore'].iloc[0],"T1champLevel":qq1['champLevel'].iloc[0],"T1goldEarned":qq1['goldEarned'].iloc[0],"T1totalMinionsKilled":qq1['totalMinionsKilled'].iloc[0]})).T
+                temp2 =pd.DataFrame(pd.Series({"sT2Win":qq2['win'].iloc[0],"T2DealtDamage":qq2['totalDamageDealtToChampions'].iloc[0],"T2TakenDamage":qq2['totalDamageTaken'].iloc[0],"T2VisionScore":qq2['visionScore'].iloc[0],"T2champLevel":qq2['champLevel'].iloc[0],"T2goldEarned":qq2['goldEarned'].iloc[0],"T2totalMinionsKilled":qq2['totalMinionsKilled'].iloc[0]})).T
+                temp1 = pd.concat([temp1,temp2], axis=1)
+                data5 = pd.concat([data5,temp1], axis=0)
+
+                
         print('2번 작업',i+1,'/',len(match_info_df))
         #챔피언아이디를 제외하고 딕셔너리를 뽑는다
     except:
@@ -260,8 +301,13 @@ for i in range(len(match_info_df)):
     data_team = pd.concat([team1_df,team2_df],axis=1)
     
 '''
-match_fin.to_csv('매치데이터.csv',index=False,encoding = 'cp949')#저장
-data_fin.to_csv('매치데이터2.csv',index=False,encoding = 'cp949')#중간저장
+data1.to_csv('탑데이터.csv',index=False,encoding = 'cp949')
+data2.to_csv('정글데이터.csv',index=False,encoding = 'cp949')
+data3.to_csv('미드데이터.csv',index=False,encoding = 'cp949')
+data4.to_csv('원딜데이터.csv',index=False,encoding = 'cp949')
+data5.to_csv('서폿데이터.csv',index=False,encoding = 'cp949')
+#match_fin.to_csv('매치데이터.csv',index=False,encoding = 'cp949')#저장
+#data_fin.to_csv('매치데이터2.csv',index=False,encoding = 'cp949')#중간저장
 # --------------3번-------------------------------------------
 '''
 
