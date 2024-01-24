@@ -6,9 +6,13 @@
 # 2. 프로제트 인원
 프로그래머 한태종
 # 3. 프로젝트 환경
+
 Python
+
 Python IDLE
+
 Sklearn
+
 # 4. 프로젝트 결과
 얻은 데이터를 통해 아래의 결과를 도출해낼 수 있었다.
 ![image](https://github.com/bababamba/projct/assets/86463743/c869f08e-28da-4798-b7f9-7412e15d5de0)
